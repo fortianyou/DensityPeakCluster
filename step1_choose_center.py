@@ -13,5 +13,5 @@ def plot(data, auto_select_dc = False):
 	plot_rho_delta(rho, delta)   #plot to choose the threthold
 
 if __name__ == '__main__':
-	#plot('./data/data_in_paper/example_distances.dat')
-	plot('./data/data_iris_flower/iris.forcluster', auto_select_dc = True)
+	plot('./data/data_in_paper/example_distances.dat')
+	#plot('./data/data_iris_flower/iris.forcluster', auto_select_dc = True)

@@ -16,5 +16,6 @@ def plot(data, density_threshold, distance_threshold, auto_select_dc = False):
 	plot_cluster(dpcluster)
 
 if __name__ == '__main__':
-	#plot('./data/data_in_paper/example_distances.dat', 20, 0.1)
-	plot('./data/data_iris_flower/iris.forcluster', 40.7, 0.9, auto_select_dc = True)
+	plot('./data/data_in_paper/example_distances.dat', 20, 0.1)
+	#plot('./test.dat', 17, 0.1)
+	#plot('./data/data_iris_flower/iris.forcluster', 40.7, 0.9, auto_select_dc = True)

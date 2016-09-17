@@ -5,6 +5,7 @@ import sys
 import math
 import logging
 import numpy as np
+import re
 
 logger = logging.getLogger("dpc_cluster")
 
@@ -24,7 +25,7 @@ def load_paperdata(distance_f):
 	max_id = 0
 	with open(distance_f, 'r') as fp:
 		for line in fp:
-			x1, x2, d = line.strip().split(' ')
+			x1, x2, d = re.split('\s', line.strip())
 			x1, x2 = int(x1), int(x2)
 			max_id = max(max_id, x1, x2)
 			dis = float(d)
@@ -165,6 +166,21 @@ class DensityPeakCluster(object):
 		rho = local_density(max_id, distances, dc)
 		return distances, max_dis, min_dis, max_id, rho
 
+	def union_set(self, cluster_set, index ):
+		if( cluster_set[index] <0 or cluster_set[index] == index):
+			return cluster_set[index]
+		else:
+			cluster_set[index] = self.union_set( cluster_set, cluster_set[index] )
+			return  cluster_set[index]
+
+	def union(self, center, cluster_set):
+
+		for i in cluster_set.keys():
+			cluster_set[i] = self.union_set(cluster_set, i)
+			if( cluster_set[i] not in center ):
+				cluster_set[i] = -1
+
+	
 	def cluster(self, load_func, distance_f, density_threshold, distance_threshold, dc = None, auto_select_dc = False):
 		'''
 		Cluster the data
@@ -186,18 +202,18 @@ class DensityPeakCluster(object):
 		logger.info("PROGRESS: start cluster")
 		cluster, ccenter = {}, {}  #cl/icl in cluster_dp.m
 		for idx, (ldensity, mdistance, nneigh_item) in enumerate(zip(rho, delta, nneigh)):
-			if idx == 0: continue
+#			if idx == 0: continue
 			if ldensity >= density_threshold and mdistance >= distance_threshold:
 				ccenter[idx] = idx
 				cluster[idx] = idx
 		for idx, (ldensity, mdistance, nneigh_item) in enumerate(zip(rho, delta, nneigh)):
-			if idx == 0 or idx in ccenter: continue
-			if nneigh_item in cluster:
-				cluster[idx] = cluster[nneigh_item]
-			else:
-				cluster[idx] = -1
+#			if idx == 0 or idx in ccenter: continue
+			if idx in ccenter: continue
+			cluster[idx] = nneigh_item
 			if idx % (max_id / 10) == 0:
 				logger.info("PROGRESS: at index #%i" % (idx))
+
+		self.union(ccenter, cluster)
 		self.cluster, self.ccenter = cluster, ccenter
 		self.distances = distances
 		self.max_id = max_id
